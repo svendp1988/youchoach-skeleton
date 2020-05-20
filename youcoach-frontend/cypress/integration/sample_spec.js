@@ -14,7 +14,6 @@ describe('Navigate to register', () => {
   })
 });
 
-
 describe('Filling out register form', () => {
   it('register button should only be clickable when form is fully filled in', () => {
     cy.visit('https://you-coach-south.herokuapp.com');
@@ -29,3 +28,31 @@ describe('Filling out register form', () => {
 
 
 
+describe('The Login Page', () => {
+  it('sets auth cookie when logging in via form submission', function () {
+
+    cy.visit('https://you-coach-south.herokuapp.com');
+    cy.get('a[routerLink*="/login"]').contains('Sign').click();
+
+    cy.get('input[id=username]').type('coachee1@school.org', {force: true});
+
+    // {enter} causes the form to submit
+    cy.get('input[id=password]').type(`YouC0ach{enter}`, {force: true});
+
+    // we should be redirected to /dashboard
+    cy.url().should('include', '/profile');
+
+    // our auth cookie should be present
+    cy.window()
+      .its("sessionStorage")
+      .invoke("getItem", "jwt_token")
+      .should("exist");
+    cy.window()
+      .its("sessionStorage")
+      .invoke("getItem", "username")
+      .should("equal", 'coachee1@school.org');
+
+    // // UI should reflect this user being logged in
+    // cy.get('h1').should('contain', 'jane.lane')
+  })
+})
